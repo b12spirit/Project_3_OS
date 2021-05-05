@@ -11,13 +11,12 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
         info->elt = NULL;
         sem_init(&info->cpu_sem, 0, 0);
 }
-
-/*...More functions go here...*/
 static void destroy_thread_info(thread_info_t *info)
 {
         /*...Code goes here...*/
         free(info->elt);
 }
+/*...More functions go here...*/
 
 static void enter_sched_queue(thread_info_t *info)
 {
@@ -72,15 +71,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 
 static void destroy_sched_queue(sched_queue_t *queue)
 {
-        /*...Code goes here...*/
-        // list_elem_t *temp;
-        // while ((temp = list_get_head(queue->list)) != NULL)
-        // { //delete any remainign list elements
-        //         list_remove_elem(queue->list, temp);
-        //         free(temp);
-        // }
-        // free(queue->list);
-        free(queue->list)
+        //free(queue->list)
 }
 
 /*...More functions go here...*/
@@ -127,9 +118,6 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
         queue->next = queue->current->next;
         return (thread_info_t *)queue->current->datum;
 }
-
-/* Select the next worker thread to execute in FIFO scheduling
- /* Returns NULL if the scheduler queue is empty. */
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 {
         if (list_size(queue->list) != 0)

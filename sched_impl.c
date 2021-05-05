@@ -1,6 +1,7 @@
 
 #include "sched_impl.h"
 #include "scheduler.h"
+
 /* Fill in your scheduler implementation code below: */
 
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
@@ -56,7 +57,7 @@ static void release_cpu(thread_info_t *info)
 static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
         /*...Code goes here...*/
-        if (queue_size <= 0)
+        if (queue_size < -1)
         {
                 exit(-1); //exit entire program if queue has a size of zero
         }
@@ -65,20 +66,21 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
         queue->list = (list_t *)malloc(sizeof(list_t));
         list_init(queue->list);
         sem_init(&admission_sem, 0, queue_size);
-        sem_init(&cpu_sem, 0, 0);   //block on first call of wait_for_worker
-        sem_init(&ready_sem, 0, 0); //block on first call of wait_for_queue
+        sem_init(&cpu_sem, 0, 0);   
+        sem_init(&ready_sem, 0, 0);
 }
 
 static void destroy_sched_queue(sched_queue_t *queue)
 {
         /*...Code goes here...*/
-        list_elem_t *temp;
-        while ((temp = list_get_head(queue->list)) != NULL)
-        { //delete any remainign list elements
-                list_remove_elem(queue->list, temp);
-                free(temp);
-        }
-        free(queue->list);
+        // list_elem_t *temp;
+        // while ((temp = list_get_head(queue->list)) != NULL)
+        // { //delete any remainign list elements
+        //         list_remove_elem(queue->list, temp);
+        //         free(temp);
+        // }
+        // free(queue->list);
+        free(queue->list)
 }
 
 /*...More functions go here...*/

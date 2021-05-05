@@ -33,7 +33,7 @@ the core synchronization and scheduling operations.
 As provided, the project only includes the "dummy" scheduling algorithm, which
 doesn't even try to do anything.  You can run it like this:
   make
-  ./scheduler -dummy 0 N   # where N is some number of worker threads
+  ./scheduler -dummy 0 N 1  # where N is some number of worker threads
 All threads run right away regardless of the queue size (even zero!), and
 are scheduled by the operating system.  The goal of this project is to create
 scheduler implementations which are a bit more controlled and predictable.

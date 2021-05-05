@@ -10,17 +10,19 @@
 #include "sched_impl.h"
 
 /* Used to pass thread arguments to worker_proc() */
-typedef struct worker_args {
-	pthread_t            thread_id;
-	int                  iterations;
+typedef struct worker_args
+{
+	pthread_t thread_id;
+	int iterations;
 	worker_thread_ops_t *ops;
-	thread_info_t        info;
+	thread_info_t info;
 } worker_args_t;
 
 /* Used to pass thread arguments to sched_proc() */
-typedef struct sched_args {
+typedef struct sched_args
+{
 	sched_queue_t *queue;
-	sched_ops_t   *sched_ops;
+	sched_ops_t *sched_ops;
 } sched_args_t;
 
 /* The scheduler uses this counter to keep track of whether it should wait
@@ -33,19 +35,20 @@ static int num_workers_remaining = 0;
 static void *worker_proc(void *arg)
 {
 	int i;
-	worker_args_t *wa = (worker_args_t *) arg;
+	worker_args_t *wa = (worker_args_t *)arg;
 
 	/* Compete with other threads to enter the scheduler queue. */
 	wa->ops->enter_sched_queue(&wa->info);
-	printf("Thread %lu: in scheduler queue\n", (unsigned long) wa->thread_id);
+	printf("Thread %lu: in scheduler queue\n", (unsigned long)wa->thread_id);
 
-	for (i = 0; i < wa->iterations; i++) {
+	for (i = 0; i < wa->iterations; i++)
+	{
 		/* Don't do anything until the scheduler tells us. */
 		wa->ops->wait_for_cpu(&wa->info);
 
 		/* Do some meaningless work... */
 		usleep(30000);
-		printf("Thread %lu: loop %d\n", (unsigned long) wa->thread_id, i);
+		printf("Thread %lu: loop %d\n", (unsigned long)wa->thread_id, i);
 
 		/* Let another worker have a chance. */
 		wa->ops->release_cpu(&wa->info);
@@ -54,7 +57,7 @@ static void *worker_proc(void *arg)
 	/* Leave the scheduler queue to make room for someone else
 	 * and decrement the count of remaining threads. */
 	wa->ops->wait_for_cpu(&wa->info);
-	printf("Thread %lu: exiting\n", (unsigned long) wa->thread_id);
+	printf("Thread %lu: exiting\n", (unsigned long)wa->thread_id);
 	wa->ops->leave_sched_queue(&wa->info);
 	num_workers_remaining--;
 	wa->ops->release_cpu(&wa->info);
@@ -65,21 +68,25 @@ static void *worker_proc(void *arg)
 /* Procedure implementing the outline of the scheduler. */
 static void *sched_proc(void *arg)
 {
-	sched_args_t  *sa        = (sched_args_t *) arg;
-	sched_queue_t *queue     = sa->queue;
-	sched_ops_t   *sched_ops = sa->sched_ops;
+	sched_args_t *sa = (sched_args_t *)arg;
+	sched_queue_t *queue = sa->queue;
+	sched_ops_t *sched_ops = sa->sched_ops;
 
 	/* Wait until there's at least one worker thread to schedule. */
 	sched_ops->wait_for_queue(queue);
 
 	/* Keep scheduling worker threads until we're done. */
-	while (num_workers_remaining > 0) {
+	while (num_workers_remaining > 0)
+	{
 		thread_info_t *info = sched_ops->next_worker(queue);
 		/* next_worker() returns NULL if the scheduler queue is empty. */
-		if (info) {
+		if (info)
+		{
 			sched_ops->wake_up_worker(info);
 			sched_ops->wait_for_worker(queue);
-		} else {
+		}
+		else
+		{
 			/* Wait for someone to enter the queue. */
 			sched_ops->wait_for_queue(queue);
 		}
@@ -111,7 +118,7 @@ static worker_args_t *create_workers(worker_thread_ops_t *ops, int thread_count,
 {
 	int i = 0;
 	/* Allocate all thread arguments in one big array (makes it easy to deallocate). */
-	worker_args_t *argses = (worker_args_t *) malloc(thread_count * sizeof(worker_args_t));
+	worker_args_t *argses = (worker_args_t *)malloc(thread_count * sizeof(worker_args_t));
 
 	if (argses == NULL)
 		exit_error(errno);
@@ -120,7 +127,8 @@ static worker_args_t *create_workers(worker_thread_ops_t *ops, int thread_count,
 	 * This is safe assuming sched_ops->wait_for_queue() blocks in sched_proc(). */
 	num_workers_remaining = thread_count;
 
-	for (i = 0; i < thread_count; i++) {
+	for (i = 0; i < thread_count; i++)
+	{
 		int err = 0;
 
 		/* Set up worker thread arguments. */
@@ -129,12 +137,12 @@ static worker_args_t *create_workers(worker_thread_ops_t *ops, int thread_count,
 		ops->init_thread_info(&argses[i].info, queue);
 
 		/* Create worker thread. */
-		err = pthread_create(&argses[i].thread_id, NULL, worker_proc, (void *) &argses[i]);
+		err = pthread_create(&argses[i].thread_id, NULL, worker_proc, (void *)&argses[i]);
 		if (err)
 			exit_error(err);
 
 		/* Detach worker thread. */
-		printf("Main: detaching worker thread %lu\n", (unsigned long) argses[i].thread_id);
+		printf("Main: detaching worker thread %lu\n", (unsigned long)argses[i].thread_id);
 		pthread_detach(argses[i].thread_id);
 	}
 
@@ -153,7 +161,7 @@ static int start_scheduler(pthread_t *thread_id, sched_queue_t *queue, sched_ops
 	int err;
 
 	/* Set up scheduler thread arguments. */
-	sa.queue     = queue;
+	sa.queue = queue;
 	sa.sched_ops = ops;
 
 	/* Create the scheduler thread.	*/
@@ -186,18 +194,26 @@ int smp4_main(int argc, const char **argv)
 	sched_queue_t queue;
 
 	/* Collect command-line arguments (or exit on error). */
-	if (argc < 4) {
+	if (argc < 4)
+	{
 		print_help(argv[0]);
 		exit(0);
 	}
 
-	if (!strcmp("-fifo", argv[1])) {
+	if (!strcmp("-fifo", argv[1]))
+	{
 		sched = &sched_fifo;
-	} else if (!strcmp("-rr", argv[1])) {
+	}
+	else if (!strcmp("-rr", argv[1]))
+	{
 		sched = &sched_rr;
-	} else if (!strcmp("-dummy", argv[1])) {
+	}
+	else if (!strcmp("-dummy", argv[1]))
+	{
 		sched = &sched_dummy;
-	} else {
+	}
+	else
+	{
 		printf("\nApologies, I'm unfamiliar with the \"%s\" scheduling policy.\n", argv[1]);
 		print_help(argv[0]);
 		exit(0);
@@ -205,7 +221,8 @@ int smp4_main(int argc, const char **argv)
 
 	queue_size = atoi(argv[2]);
 	thread_count = atoi(argv[3]);
-	if (argc >= 5) {
+	if (argc >= 5)
+	{
 		iterations = atoi(argv[4]);
 	}
 
@@ -221,7 +238,7 @@ int smp4_main(int argc, const char **argv)
 	/* Create the worker threads and return. */
 	argses = create_workers(&sched->worker_ops, thread_count, iterations, &queue);
 
-	printf("Main: waiting for scheduler %lu\n", (unsigned long) sched_thread);
+	printf("Main: waiting for scheduler %lu\n", (unsigned long)sched_thread);
 	/* Wait for scheduler to finish. */
 	pthread_join(sched_thread, NULL);
 

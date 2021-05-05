@@ -71,7 +71,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 
 static void destroy_sched_queue(sched_queue_t *queue)
 {
-        //free(queue->list)
+        free(queue->list)
 }
 
 /*...More functions go here...*/

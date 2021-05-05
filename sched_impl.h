@@ -15,6 +15,8 @@ struct thread_info {
 
 struct sched_queue {
 	/*...Fill this in...*/
+	list_elem_t *current, *next;
+	list_t *queuelist;
 };
 sem_t admission_sem; //semaphore to control how many threads are in the queue at a time
 sem_t cpu_sem;       //To allow 1 thread at a time to use the CPU (acts as mutex);

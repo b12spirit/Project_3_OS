@@ -25,7 +25,9 @@ static void enter_sched_queue(thread_info_t *info)
         list_elem_init(info->elt, (void *)info);
         list_insert_tail(info->queue, info->elt);
         if (list_size(info->queue) == 1) //list was previously empty notify wait_for_queue
+        {
                 sem_post(&ready_sem);
+        }
         sem_init(&info->cpu_sem, 0, 0);
 }
 
@@ -128,14 +130,29 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
  /* Returns NULL if the scheduler queue is empty. */
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 {
-        if (list_size(queue->list) == 0)
+        // if (list_size(queue->list) == 0)
+        // {
+        //         return NULL;
+        // }
+        // else
+        // {
+        //         return (thread_info_t *)(list_get_head(queue->list))->datum;
+        // }
+        thread_info_t *info = NULL;
+
+        pthread_mutex_lock(&queue->lock);
+
+        if (queue->lst.head == NULL)
         {
-                return NULL;
+                info == NULL;
         }
         else
         {
-                return (thread_info_t *)(list_get_head(queue->list))->datum;
+                info = (thread_info_t *)queue->lst.head->datum;
         }
+        pthread_mutex_unlock(&queue->lock);
+
+        return info;
 }
 
 /* Block until at least one worker thread is in the scheduler queue. */

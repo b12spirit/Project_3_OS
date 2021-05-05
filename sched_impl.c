@@ -3,7 +3,6 @@
 #include "scheduler.h"
 
 /* Fill in your scheduler implementation code below: */
-
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
         /*...Code goes here...*/
@@ -24,43 +23,40 @@ static void enter_sched_queue(thread_info_t *info)
         info->elt = (list_elem_t *)malloc(sizeof(list_elem_t));
         list_elem_init(info->elt, (void *)info);
         list_insert_tail(info->queue, info->elt);
-        if (list_size(info->queue) == 1) //list was previously empty notify wait_for_queue
+        if (list_size(info->queue) == 1) 
         {
                 sem_post(&ready_sem);
         }
         sem_init(&info->cpu_sem, 0, 0);
 }
 
-/* Remove the thread from the scheduler queue. */
+
 static void leave_sched_queue(thread_info_t *info)
 {
         list_remove_elem(info->queue, info->elt);
         sem_post(&admission_sem);
 }
 
-/* While on the scheduler queue, block until thread is scheduled. */
 static void wait_for_cpu(thread_info_t *info)
 {
         sem_wait(&info->cpu_sem);
 }
 
-/* Voluntarily relinquish the CPU when this thread's timeslice is
- * over (cooperative multithreading). */
+
 static void release_cpu(thread_info_t *info)
 {
         sem_post(&cpu_sem);
         sched_yield();
 }
 
-//////////////////////////////////////
+
 static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
-        /*...Code goes here...*/
         if (queue_size < -1)
         {
-                exit(-1); //exit entire program if queue has a size of zero
+                exit(-1); 
         }
-        queue->current = NULL;
+        queue->curr = NULL;
         queue->next = NULL;
         queue->queuelist = (list_t *)malloc(sizeof(list_t));
         list_init(queue->list);
@@ -80,14 +76,12 @@ static void wake_up_worker(thread_info_t *info)
         sem_post(&info->cpu_sem);
 }
 
-/* Block until the current worker thread relinquishes the CPU. */
 static void wait_for_worker(sched_queue_t *queue)
 {
         sem_wait(&cpu_sem);
 }
 
-/* Select the next worker thread to execute in round-robin scheduling
- * Returns NULL if the scheduler queue is empty. */
+
 static thread_info_t *next_worker_rr(sched_queue_t *queue)
 {
         if (list_size(queue->queuelist) == 0)
@@ -95,28 +89,28 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
                 return NULL;
         }
 
-        if (queue->current == NULL)
-        { //queue was just empty and now has an item in it
-                queue->current = list_get_head(queue->queuelist);
+        if (queue->curr == NULL)
+        {
+                queue->curr = list_get_head(queue->queuelist);
         }
         else if (queue->next == NULL)
-        { //the last currentWorker was the tail of the queue
-                if (queue->current == list_get_tail(queue->queuelist))
-                { //the previous working thread is still in the queue and is the tail
-                        queue->current = list_get_head(queue->queuelist);
+        { 
+                if (queue->curr == list_get_tail(queue->queuelist))
+                { 
+                        queue->curr = list_get_head(queue->queuelist);
                 }
                 else
                 {
-                        queue->current = list_get_tail(queue->queuelist); //collect the new tail
+                        queue->curr = list_get_tail(queue->queuelist);
                 }
         }
         else
         { //next worker is a member of the list
-                queue->current = queue->next;
+                queue->curr = queue->next;
         }
 
-        queue->next = queue->current->next;
-        return (thread_info_t *)queue->current->datum;
+        queue->next = queue->curr->next;
+        return (thread_info_t *)queue->curr->datum;
 }
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 {

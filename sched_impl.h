@@ -1,16 +1,18 @@
 #ifndef	__SCHED_IMPL__H__
 #define	__SCHED_IMPL__H__
-
+#include<semaphore.h>
+#include "list.h"
 struct thread_info {
 	/*...Fill this in...*/
-	struct sched_queue *queue;
-	struct list_elem_t *elt;
-	struct sem_t *cpu_sem;
+	list_t* queue;
+	list_elem_t *elt;
+	sem_t cpu_sem;
 };
 
 struct sched_queue {
 	/*...Fill this in...*/
-	struct sem_t admission_sem, ready_sem, cpu_sem;
+	list_elem_t *current, *next;
+	list_t *list;
 };
 
 #endif /* __SCHED_IMPL__H__ */

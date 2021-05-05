@@ -7,7 +7,7 @@
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
         /*...Code goes here...*/
-        info->queue = queue->list;
+        info->queue = queue->queuelist;
         info->elt = NULL;
         sem_init(&info->cpu_sem, 0, 0);
 }
@@ -62,7 +62,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
         }
         queue->current = NULL;
         queue->next = NULL;
-        queue->list = (list_t *)malloc(sizeof(list_t));
+        queue->queuelist = (list_t *)malloc(sizeof(list_t));
         list_init(queue->list);
         sem_init(&admission_sem, 0, queue_size);
         sem_init(&cpu_sem, 0, 0);   
@@ -71,7 +71,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 
 static void destroy_sched_queue(sched_queue_t *queue)
 {
-        free(queue->list)
+        free(queue->queuelist)
 }
 
 /*...More functions go here...*/
@@ -90,24 +90,24 @@ static void wait_for_worker(sched_queue_t *queue)
  * Returns NULL if the scheduler queue is empty. */
 static thread_info_t *next_worker_rr(sched_queue_t *queue)
 {
-        if (list_size(queue->list) == 0)
+        if (list_size(queue->queuelist) == 0)
         {
                 return NULL;
         }
 
         if (queue->current == NULL)
         { //queue was just empty and now has an item in it
-                queue->current = list_get_head(queue->list);
+                queue->current = list_get_head(queue->queuelist);
         }
         else if (queue->next == NULL)
         { //the last currentWorker was the tail of the queue
-                if (queue->current == list_get_tail(queue->list))
+                if (queue->current == list_get_tail(queue->queuelist))
                 { //the previous working thread is still in the queue and is the tail
-                        queue->current = list_get_head(queue->list);
+                        queue->current = list_get_head(queue->queuelist);
                 }
                 else
                 {
-                        queue->current = list_get_tail(queue->list); //collect the new tail
+                        queue->current = list_get_tail(queue->queuelist); //collect the new tail
                 }
         }
         else
@@ -120,9 +120,9 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
 }
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 {
-        if (list_size(queue->list) != 0)
+        if (list_size(queue->queuelist) != 0)
         {
-                return (thread_info_t *)(list_get_head(queue->list))->datum;
+                return (thread_info_t *)(list_get_head(queue->queuelist))->datum;
         }
         else
         {

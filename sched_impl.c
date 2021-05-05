@@ -81,9 +81,9 @@
 #include <assert.h>
 
 /* Fill in your scheduler implementation code below: */
-sem_t admit_sem; //semaphore to control how many threads are in the queue at a time
-sem_t cpu_sem; //To allow 1 thread at a time to use the CPU (acts as mutex);
-sem_t ready_sem; //make sure is not empty
+struct sem_t admit_sem = 0; //semaphore to control how many threads are in the queue at a time
+struct sem_t cpu_sem = 0; //To allow 1 thread at a time to use the CPU (acts as mutex);
+struct sem_t ready_sem = 0; //make sure is not empty
 
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {

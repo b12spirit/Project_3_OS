@@ -1,9 +1,9 @@
-#include "scheduler.h"
+
 #include "sched_impl.h"
 /* Fill in your scheduler implementation code below: */
-sem_t admission_sem; //semaphore to control how many threads are in the queue at a time
-sem_t cpu_sem;       //To allow 1 thread at a time to use the CPU (acts as mutex);
-sem_t ready_sem;     //make sure is not empty
+// sem_t admission_sem; //semaphore to control how many threads are in the queue at a time
+// sem_t cpu_sem;       //To allow 1 thread at a time to use the CPU (acts as mutex);
+// sem_t ready_sem;     //make sure is not empty
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
     /*...Code goes here...*/
@@ -11,9 +11,6 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
     info->elt = NULL;
     sem_init(&info->cpu_sem, 0, 0);
 }
-
-
-
 /*...More functions go here...*/
 static void enter_sched_queue(thread_info_t *info)
 {
@@ -36,7 +33,6 @@ static void wait_for_cpu(thread_info_t *info)
 {
     sem_wait(&info->cpu_sem);
 }
-
 /* Voluntarily relinquish the CPU when this thread's timeslice is
  * over (cooperative multithreading). */
 static void release_cpu(thread_info_t *info)

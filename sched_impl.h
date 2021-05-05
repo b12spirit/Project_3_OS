@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <sched.h>
 #include <sched.h>
-#include "scheduler.h"
 struct thread_info {
 	/*...Fill this in...*/
 	list_t* queue;

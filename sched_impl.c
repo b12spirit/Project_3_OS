@@ -130,29 +130,14 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
  /* Returns NULL if the scheduler queue is empty. */
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 {
-        // if (list_size(queue->list) == 0)
-        // {
-        //         return NULL;
-        // }
-        // else
-        // {
-        //         return (thread_info_t *)(list_get_head(queue->list))->datum;
-        // }
-        thread_info_t *info = NULL;
-
-        pthread_mutex_lock(&queue->lock);
-
-        if (queue->lst.head == NULL)
+        if (list_size(queue->list) != 0)
         {
-                info == NULL;
+                return (thread_info_t *)(list_get_head(queue->list))->datum;
         }
         else
         {
-                info = (thread_info_t *)queue->lst.head->datum;
+                return NULL;
         }
-        pthread_mutex_unlock(&queue->lock);
-
-        return info;
 }
 
 /* Block until at least one worker thread is in the scheduler queue. */

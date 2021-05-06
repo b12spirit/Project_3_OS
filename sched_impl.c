@@ -18,9 +18,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
                 queue->queuelist = (list_t *)malloc(sizeof(list_t));
                 if(queue->queuelist != NULL)
                         queue->queuelist->head = queue->queuelist->tail = NULL;
-                sem_init(&cpu_sem, 0, 0);
                 sem_init(&admission_sem, 0, queue_size);
-                sem_init(&ready_sem, 0, 0);
         }
 }
 /*...More functions go here...*/
@@ -65,11 +63,11 @@ static thread_info_t *nextprocessrr(sched_queue_t *processqueue)
         processqueue->next = processqueue->curr->next;
         return (thread_info_t *)processqueue->curr->datum;
 }
-static void wake_up_worker(thread_info_t *info)
+static void processtogo(thread_info_t *info)
 {
         sem_post(&info->cpu_sem);
 }
-static void wait_for_worker(sched_queue_t *queue)
+static void waitingprocess(sched_queue_t *queue)
 {
         sem_wait(&cpu_sem);
 }
@@ -95,5 +93,5 @@ static void destroyqueue(sched_queue_t *queue)
         free(queue->queuelist);
 }
 /* You need to statically initialize these structures: */
-sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, nextprocessfifo, queueup}},
-             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, nextprocessrr, queueup}};
+sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, processtogo, waitingprocess, nextprocessfifo, queueup}},
+             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, processtogo, waitingprocess, nextprocessrr, queueup}};

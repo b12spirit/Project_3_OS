@@ -53,6 +53,7 @@ static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 }
 static thread_info_t *next_worker_rr(sched_queue_t *queue)
 {
+        auto queuedata;
         if (list_size(queue->queuelist) == 0)
         {
                 return NULL;
@@ -78,7 +79,8 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
                 }
         }
         queue->next = queue->curr->next;
-        return (thread_info_t *)queue->curr->datum;
+        queuedata = (thread_info_t *)queue->curr->datum;
+        return  queuedata;
 }
 static void wake_up_worker(thread_info_t *info)
 {

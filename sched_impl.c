@@ -7,7 +7,6 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
         /*...Code goes here...*/
         info->qu = queue->queuelist;
         info->elemt = NULL;
-        sem_init(&info->cpu_sem, 0, 0);
 }
 static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
@@ -15,14 +14,13 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
                 exit(-1);
         else
         {
-                queue->curr = NULL, queue->next = NULL;
-                queue->queuelist = (list_t *)malloc(sizeof(list_t));
-                if(queue->queuelist != NULL)
+                if (queue->queuelist != NULL)
                         queue->queuelist->head = queue->queuelist->tail = NULL;
-                list_init(queue->queuelist);
-                sem_init(&cpu_sem, 0, 0);
-                sem_init(&admission_sem, 0, queue_size);
-                sem_init(&ready_sem, 0, 0);
+                else
+                {
+                        queue->curr = NULL, queue->next = NULL;
+                        queue->queuelist = (list_t *)malloc(sizeof(list_t));
+                }
         }
 }
 /*...More functions go here...*/
@@ -36,7 +34,6 @@ static void enter_sched_queue(thread_info_t *info)
         {
                 sem_post(&ready_sem);
         }
-        sem_init(&info->cpu_sem, 0, 0);
 }
 static void leave_sched_queue(thread_info_t *info)
 {
@@ -58,7 +55,8 @@ static thread_info_t *nextprocessrr(sched_queue_t *processqueue)
                 processqueue->curr = list_get_head(processqueue->queuelist);
         else if (processqueue->next != NULL)
                 processqueue->curr = processqueue->next;
-        else{
+        else
+        {
                 if (processqueue->curr == list_get_tail(processqueue->queuelist))
                         processqueue->curr = list_get_head(processqueue->queuelist);
                 else

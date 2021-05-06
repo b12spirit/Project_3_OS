@@ -59,7 +59,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
         queue->curr = NULL;
         queue->next = NULL;
         queue->queuelist = (list_t *)malloc(sizeof(list_t));
-        list_init(queue->list);
+        list_init(queue->queuelist);
         sem_init(&admission_sem, 0, queue_size);
         sem_init(&cpu_sem, 0, 0);   
         sem_init(&ready_sem, 0, 0);

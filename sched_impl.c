@@ -28,9 +28,9 @@ static void enter_sched_queue(thread_info_t *info)
 {
         sem_wait(&admission_sem);
         info->elt = (list_elem_t *)malloc(sizeof(list_elem_t));
-        list_elem_init(info->elt, (void *)info);
         list_insert_tail(info->queue, info->elt);
-        if (list_size(info->queue) == 1)
+        list_elem_init(info->elt, (void *)info); 
+        if (size(info->queue) == 1 |)
         {
                 sem_post(&ready_sem);
         }
@@ -85,7 +85,6 @@ static void wake_up_worker(thread_info_t *info)
 {
         sem_post(&info->cpu_sem);
 }
-
 static void wait_for_worker(sched_queue_t *queue)
 {
         sem_wait(&cpu_sem);

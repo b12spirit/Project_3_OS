@@ -1,6 +1,6 @@
-
 #include "sched_impl.h"
 #include "scheduler.h"
+// TEAM : Alonso Vidal, Salvador Leon
 /* Fill in your scheduler implementation code below: */
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
@@ -29,7 +29,7 @@ static void enter_sched_queue(thread_info_t *info)
         info->elt = (list_elem_t *)malloc(sizeof(list_elem_t));
         list_insert_tail(info->qu, info->elt);
         list_elem_init(info->elt, (void *)info); 
-        if (list_size(info->qu) == 1 |)
+        if (list_size(info->qu) == 1)
         {
                 sem_post(&ready_sem);
         }

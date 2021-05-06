@@ -33,7 +33,7 @@ the core synchronization and scheduling operations.
 As provided, the project only includes the "dummy" scheduling algorithm, which
 doesn't even try to do anything.  You can run it like this:
   make
-  ./scheduler -dummy 0 N 1  # where N is some number of worker threads
+  ./scheduler -dummy 0 N   # where N is some number of worker threads
 All threads run right away regardless of the queue size (even zero!), and
 are scheduled by the operating system.  The goal of this project is to create
 scheduler implementations which are a bit more controlled and predictable.
@@ -219,39 +219,66 @@ Q 1  What are some pros and cons of using the struct of function pointers
      significantly affect performance?  Give some examples of when you would
      and wouldn't use this approach, and why.
 
+We get some overhead in calling function pointers, but it can open the door to polymorphic classes.
+It does not significantly affect the performance. 
+
+when we are interested in polymarphic classes, otherwise we don't want to use it.
+
 Q 2  Briefly describe the synchronization constructs you needed to implement
      this MP--i.e., how you mediated admission of threads to the scheduler
      queue and how you made sure only the scheduled thread would run at any
      given time.
 
+Synchronous threading to make sure that everythread is executing at its given time.
+
 Q 3  Why is the dummy scheduling implementation provided potentially
      unsafe (i.e. could result in invalid memory references)?  How does
      your implementation avoid this problem?
+
+Yes, it throws invalid memory references. Dynamic and allocating memories should avoid invalid references.
 
 Q 4  When using the FIFO or Round Robin scheduling algorithm, can
      sched_proc() ever "miss" any threads and exit early before all threads
      have been scheduled and run to completion?  If yes, give an example; if
      no, explain why not.
 
+No, it won't exit without completing all threads. program executes all the threads before exiting as they are "joined".
+
 Q 5  Why are the three variables in scheduler.h declared 'extern'?  What
      would happen if they were not declared 'extern'?  What would happen
      if they were not declared without the 'extern' in any file?
 
+We need to retain values for complete execution, we want to access those variables anywhere in the program with the same value.
+
 Q 6  Describe the behavior of exit_error() function in scheduler.c.  Why
      does exit_error() not use errno?
+
+It prints error statement with error_num passed as parameter exits.
+
 
 Q 7  Does it matter whether the call to sched_ops->wait_for_queue(queue) in
      sched_proc() actually does anything?  How would it affect correctness
      if it just returned right away?  How about performance?
+
+Yes, If it returns right away, it will be conflicti with other threads.
+
 
 Q 8  Explain how worker_proc() is able to call the appropriate
      implementation of wait_for_cpu() corresponding to the scheduling policy
      selected by the user on the command line.  Start from main() and
      briefly explain each step along the way.
 
+The main will call the method create_workers with the infor on the command line args.
+create_workers will set values for worker_args_t object and call  
+method worker_proc in threads with the object parameter of worker_args_t.
+worker_proc will call the wait_for_cpu() along with the info of thread in worker_args_t.
+
+
 Q 9  Is it possible that a worker thread would never proceed past the call to
      wa->ops->wait_for_cpu(&wa->info) when using one of the scheduling
      policies implemented in this MP?
+
+Yes. If processes are of 1 unit time and "maximum process at 1 time <= number of threads" then it would finish
 
 Q 10 Explain how you would alter the program to demonstrate the "convoy"
      effect, when a large compute bound job that never yields to another
@@ -261,3 +288,5 @@ Q 10 Explain how you would alter the program to demonstrate the "convoy"
      processes".  Why is it difficult to show the benefits of Round Robin
      scheduling in this case using the current implementation in the machine
      problem?
+     
+Alter FIFO concept supposing that a threshold process can have max stay (n) time units for execution, then process must wait again for its turn.

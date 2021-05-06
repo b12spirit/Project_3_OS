@@ -96,5 +96,5 @@ static void destroyqueue(sched_queue_t *queue)
         free(queue->queuelist);
 }
 /* You need to statically initialize these structures: */
-sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, next_worker_fifo, queueup}},
-             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, next_worker_rr, queueup}};
+sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, processtoup, wait_for_worker, nextprocessfifo, queueup}},
+             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, processtoup, wait_for_worker, nextprocessrr, queueup}};

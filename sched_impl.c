@@ -28,7 +28,7 @@ static void enter_sched_queue(thread_info_t *info)
         sem_wait(&admission_sem);
         info->elemt = (list_elem_t *)malloc(sizeof(list_elem_t));
         list_insert_tail(info->qu, info->elemt);
-        list_elem_init(info->elemt, (void *)info); 
+        list_elem_init(info->elemt, (void *)info);
         if (list_size(info->qu) == 1)
         {
                 sem_post(&ready_sem);
@@ -53,34 +53,21 @@ static thread_info_t *next_worker_fifo(sched_queue_t *queue)
 }
 static thread_info_t *next_worker_rr(sched_queue_t *queue)
 {
-        auto queuedata;
         if (list_size(queue->queuelist) == 0)
-        {
                 return NULL;
-        }
 
         if (queue->curr == NULL)
-        {
                 queue->curr = list_get_head(queue->queuelist);
-        }
         else if (queue->next != NULL)
-        {
                 queue->curr = queue->next;
-        }
-        else
-        {
+        else{
                 if (queue->curr == list_get_tail(queue->queuelist))
-                {
                         queue->curr = list_get_head(queue->queuelist);
-                }
                 else
-                {
                         queue->curr = list_get_tail(queue->queuelist);
-                }
         }
         queue->next = queue->curr->next;
-        queuedata = (thread_info_t *)queue->curr->datum;
-        return  queuedata;
+        return (thread_info_t *)queue->curr->datum;
 }
 static void wake_up_worker(thread_info_t *info)
 {

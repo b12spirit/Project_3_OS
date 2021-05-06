@@ -9,7 +9,6 @@
 struct thread_info 
 {
 	sem_t cpu_sem;
-
 	list_t* qu;
 	list_elem_t *elemt;
 };

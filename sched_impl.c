@@ -12,15 +12,16 @@ static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
         if (queue_size < -1)
-        {
                 exit(-1);
+        else
+        {
+                queue->curr = NULL, queue->next = NULL;
+                queue->queuelist = (list_t *)malloc(sizeof(list_t));
+                list_init(queue->queuelist);
+                sem_init(&admission_sem, 0, queue_size);
+                sem_init(&cpu_sem, 0, 0);
+                sem_init(&ready_sem, 0, 0);
         }
-        queue->curr = NULL, queue->next = NULL;
-        queue->queuelist = (list_t *)malloc(sizeof(list_t));
-        list_init(queue->queuelist);
-        sem_init(&admission_sem, 0, queue_size);
-        sem_init(&cpu_sem, 0, 0);
-        sem_init(&ready_sem, 0, 0);
 }
 /*...More functions go here...*/
 static void enter_sched_queue(thread_info_t *info)
@@ -40,36 +41,32 @@ static void leave_sched_queue(thread_info_t *info)
         list_remove_elem(info->qu, info->elemt);
         sem_post(&admission_sem);
 }
-static thread_info_t *next_worker_fifo(sched_queue_t *queue)
+static thread_info_t *nextprocessfifo(sched_queue_t *queue)
 {
         if (list_size(queue->queuelist) != 0)
-        {
                 return (thread_info_t *)(list_get_head(queue->queuelist))->datum;
-        }
+        else
+                return NULL;
+}
+static thread_info_t *nextprocessrr(sched_queue_t *processqueue)
+{
+        if (list_size(processqueue->queuelist) == 0)
+                return NULL;
+        if (processqueue->curr == NULL)
+                processqueue->curr = list_get_head(processqueue->queuelist);
+        else if (processqueue->next != NULL)
+                processqueue->curr = processqueue->next;
         else
         {
-                return NULL;
-        }
-}
-static thread_info_t *next_worker_rr(sched_queue_t *queue)
-{
-        if (list_size(queue->queuelist) == 0)
-                return NULL;
-
-        if (queue->curr == NULL)
-                queue->curr = list_get_head(queue->queuelist);
-        else if (queue->next != NULL)
-                queue->curr = queue->next;
-        else{
-                if (queue->curr == list_get_tail(queue->queuelist))
-                        queue->curr = list_get_head(queue->queuelist);
+                if (processqueue->curr == list_get_tail(processqueue->queuelist))
+                        processqueue->curr = list_get_head(processqueue->queuelist);
                 else
-                        queue->curr = list_get_tail(queue->queuelist);
+                        processqueue->curr = list_get_tail(processqueue->queuelist);
         }
-        queue->next = queue->curr->next;
-        return (thread_info_t *)queue->curr->datum;
+        processqueue->next = processqueue->curr->next;
+        return (thread_info_t *)processqueue->curr->datum;
 }
-static void wake_up_worker(thread_info_t *info)
+static void processtoup(thread_info_t *info)
 {
         sem_post(&info->cpu_sem);
 }

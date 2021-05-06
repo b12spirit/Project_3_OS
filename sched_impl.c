@@ -5,7 +5,7 @@
 static void init_thread_info(thread_info_t *info, sched_queue_t *queue)
 {
         /*...Code goes here...*/
-        info->queue = queue->queuelist;
+        info->qu = queue->queuelist;
         info->elt = NULL;
         sem_init(&info->cpu_sem, 0, 0);
 }
@@ -15,8 +15,7 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
         {
                 exit(-1);
         }
-        queue->curr = NULL;
-        queue->next = NULL;
+        queue->curr = NULL, queue->next = NULL;
         queue->queuelist = (list_t *)malloc(sizeof(list_t));
         list_init(queue->queuelist);
         sem_init(&admission_sem, 0, queue_size);
@@ -28,9 +27,9 @@ static void enter_sched_queue(thread_info_t *info)
 {
         sem_wait(&admission_sem);
         info->elt = (list_elem_t *)malloc(sizeof(list_elem_t));
-        list_insert_tail(info->queue, info->elt);
+        list_insert_tail(info->qu, info->elt);
         list_elem_init(info->elt, (void *)info); 
-        if (size(info->queue) == 1 |)
+        if (list_size(info->qu) == 1 |)
         {
                 sem_post(&ready_sem);
         }
@@ -38,7 +37,7 @@ static void enter_sched_queue(thread_info_t *info)
 }
 static void leave_sched_queue(thread_info_t *info)
 {
-        list_remove_elem(info->queue, info->elt);
+        list_remove_elem(info->qu, info->elt);
         sem_post(&admission_sem);
 }
 static thread_info_t *next_worker_fifo(sched_queue_t *queue)

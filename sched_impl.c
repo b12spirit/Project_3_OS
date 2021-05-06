@@ -88,7 +88,7 @@ static void wait_for_worker(sched_queue_t *queue)
 {
         sem_wait(&cpu_sem);
 }
-static void wait_for_queue(sched_queue_t *queue)
+static void queueup(sched_queue_t *queue)
 {
         sem_wait(&ready_sem);
 }
@@ -105,10 +105,10 @@ static void destroy_thread_info(thread_info_t *info)
 {
         free(info->elemt);
 }
-static void destroy_sched_queue(sched_queue_t *queue)
+static void destroyqueue(sched_queue_t *queue)
 {
         free(queue->queuelist);
 }
 /* You need to statically initialize these structures: */
-sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroy_sched_queue, wake_up_worker, wait_for_worker, next_worker_fifo, wait_for_queue}},
-             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroy_sched_queue, wake_up_worker, wait_for_worker, next_worker_rr, wait_for_queue}};
+sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, next_worker_fifo, queueup}},
+             sched_rr = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroyqueue, wake_up_worker, wait_for_worker, next_worker_rr, queueup}};

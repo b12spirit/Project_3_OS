@@ -13,14 +13,14 @@ static void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
         if (queue_size < -1)
         {
-                exit(-1); 
+                exit(-1);
         }
         queue->curr = NULL;
         queue->next = NULL;
         queue->queuelist = (list_t *)malloc(sizeof(list_t));
         list_init(queue->queuelist);
         sem_init(&admission_sem, 0, queue_size);
-        sem_init(&cpu_sem, 0, 0);   
+        sem_init(&cpu_sem, 0, 0);
         sem_init(&ready_sem, 0, 0);
 }
 /*...More functions go here...*/
@@ -30,7 +30,7 @@ static void enter_sched_queue(thread_info_t *info)
         info->elt = (list_elem_t *)malloc(sizeof(list_elem_t));
         list_elem_init(info->elt, (void *)info);
         list_insert_tail(info->queue, info->elt);
-        if (list_size(info->queue) == 1) 
+        if (list_size(info->queue) == 1)
         {
                 sem_post(&ready_sem);
         }
@@ -63,20 +63,20 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
         {
                 queue->curr = list_get_head(queue->queuelist);
         }
-        else if (queue->next == NULL)
-        { 
+        else if (queue->next != NULL)
+        {
+                queue->curr = queue->next;
+        }
+        else
+        {
                 if (queue->curr == list_get_tail(queue->queuelist))
-                { 
+                {
                         queue->curr = list_get_head(queue->queuelist);
                 }
                 else
                 {
                         queue->curr = list_get_tail(queue->queuelist);
                 }
-        }
-        else
-        { 
-                queue->curr = queue->next;
         }
         queue->next = queue->curr->next;
         return (thread_info_t *)queue->curr->datum;
@@ -105,12 +105,11 @@ static void release_cpu(thread_info_t *info)
 }
 static void destroy_thread_info(thread_info_t *info)
 {
-        /*...Code goes here...*/
         free(info->elt);
 }
 static void destroy_sched_queue(sched_queue_t *queue)
 {
-        free(queue->queuelist)
+        free(queue->queuelist);
 }
 /* You need to statically initialize these structures: */
 sched_impl_t sched_fifo = {{init_thread_info, destroy_thread_info, enter_sched_queue, leave_sched_queue, wait_for_cpu, release_cpu}, {init_sched_queue, destroy_sched_queue, wake_up_worker, wait_for_worker, next_worker_fifo, wait_for_queue}},

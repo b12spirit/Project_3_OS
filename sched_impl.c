@@ -88,20 +88,20 @@ static thread_info_t *next_worker_rr(sched_queue_t *queue)
         {
                 return NULL;
         }
-
         if (queue->curr == NULL)
         {
                 queue->curr = list_get_head(queue->queuelist);
         }
         else if (queue->next == NULL)
         { 
-                if (queue->curr == list_get_tail(queue->queuelist))
+                if (queue->curr != list_get_tail(queue->queuelist))
                 { 
-                        queue->curr = list_get_head(queue->queuelist);
+                        queue->curr = list_get_tail(queue->queuelist);
+
                 }
                 else
                 {
-                        queue->curr = list_get_tail(queue->queuelist);
+                        queue->curr = list_get_head(queue->queuelist);
                 }
         }
         else
